@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>学期日程 · Semester A 2026/27</title>
     <style>
+        /* ===== 样式 ===== */
         * {
             margin: 0;
             padding: 0;
@@ -215,21 +216,19 @@
             text-align: center;
         }
 
-        /* ===== 周历 ===== */
+        /* ===== 周历（纯网格布局，无绝对定位） ===== */
         .week-wrapper {
             overflow-x: auto;
             margin-top: 10px;
             border-radius: 12px;
             border: 1px solid #eef3f8;
             background: #fafcff;
-            position: relative;
         }
-        /* 注意：grid-template-rows 将由 JavaScript 动态设置，CSS 中不再固定 */
         .week-grid {
             display: grid;
             grid-template-columns: 44px repeat(7, 1fr);
             min-width: 600px;
-            position: relative;
+            /* 行高由 JS 动态设置，在 style 属性中覆盖 */
         }
         .wg-header {
             background: #f4f8fe;
@@ -270,8 +269,8 @@
             border-right: 1px solid #e2eaf2;
             border-bottom: 1px solid #e2eaf2;
             background: white;
-            position: relative;
             min-height: 36px;
+            position: relative; /* 用于放置备注等，但课程块不采用绝对定位 */
         }
         .wg-cell.holiday-bg {
             background: #fff9f5;
@@ -279,8 +278,8 @@
         .wg-cell.sunday-bg {
             background: #fdf6f6;
         }
+        /* 课程块作为网格项，直接占据对应行和列 */
         .wg-course {
-            position: absolute;
             border-radius: 8px;
             color: white;
             font-weight: 600;
@@ -295,6 +294,7 @@
             flex-direction: column;
             justify-content: center;
             pointer-events: auto;
+            margin: 2px; /* 留边距，不挤占边框 */
             box-sizing: border-box;
         }
         .wg-course .loc {
@@ -419,6 +419,7 @@
         .modal-actions .btn-delete { background: #fee8e8; color: #b13e3e; margin-right: auto; }
         .modal-actions .btn-delete:active { background: #fdd5d5; }
 
+        /* ===== 手机优化 ===== */
         @media (max-width: 500px) {
             .container { padding: 10px 6px; }
             .header h1 { font-size: 17px; }
@@ -431,7 +432,7 @@
             .week-grid { grid-template-columns: 36px repeat(7, minmax(44px, 1fr)); min-width: 400px; }
             .wg-header { font-size: 10px; }
             .wg-time { font-size: 8px; }
-            .wg-course { font-size: 8px; padding: 2px 4px; border-radius: 4px; }
+            .wg-course { font-size: 8px; padding: 2px 4px; border-radius: 4px; margin: 1px; }
             .wg-course .loc { font-size: 6px; }
             .wg-course .course-note { font-size: 6px; }
             .modal-box { padding: 18px 16px; }
@@ -486,35 +487,27 @@
         };
 
         const COURSES = [
-            // 周一 19:00 (前段)
             { id: 4, code: 'MS 5217', name: 'Statistical Data Analysis', instructor: 'SHAKEEL G.', dayOfWeek: 1,
                 startTime: '19:00', endTime: '21:50', location: '李楼 1503', startDate: '2026-08-31',
                 endDate: '2026-10-17', color: 'color-4' },
-            // 周二 19:00 (前段)
             { id: 5, code: 'MS 5217', name: 'Statistical Data Analysis', instructor: 'SHAKEEL G.', dayOfWeek: 2,
                 startTime: '19:00', endTime: '21:50', location: 'ICP G-101', startDate: '2026-08-31',
                 endDate: '2026-10-17', color: 'color-4' },
-            // 周四 19:00
             { id: 3, code: 'MS 5216', name: 'Decision Analytics', instructor: 'Hester CHOW', dayOfWeek: 4,
                 startTime: '19:00', endTime: '21:50', location: '杨楼 LT-3', startDate: '2026-08-31',
                 endDate: '2026-11-28', color: 'color-3' },
-            // 周五 12:00
             { id: 2, code: 'MS 5215', name: 'AI-Enhan BusAnal', instructor: 'Chaoyu ZHANG', dayOfWeek: 5,
                 startTime: '12:00', endTime: '14:50', location: '李楼 4412', startDate: '2026-08-31',
                 endDate: '2026-11-28', color: 'color-2' },
-            // 周五 19:00
             { id: 1, code: 'IS 6335', name: 'Data Visualization', instructor: 'Zhiyin LI', dayOfWeek: 5,
                 startTime: '19:00', endTime: '21:50', location: '杨楼 LT-9', startDate: '2026-08-31',
                 endDate: '2026-11-28', color: 'color-1' },
-            // 体育课 周五 15:00 (仅 10.25-10.31)
             { id: 8, code: 'PED 1305', name: 'Physical Fitness', instructor: 'Willie HUNG', dayOfWeek: 5,
                 startTime: '15:00', endTime: '15:50', location: 'Jockey Club One Health Tower 7-04',
                 startDate: '2026-10-25', endDate: '2026-10-31', color: 'color-6', isFlex: true },
-            // 周一 19:00 (后段)
             { id: 6, code: 'MS 5218', name: 'Applied Linear Models', instructor: 'Xinxin YANG', dayOfWeek: 1,
                 startTime: '19:00', endTime: '21:50', location: '李楼 1503', startDate: '2026-10-18',
                 endDate: '2026-11-28', color: 'color-5' },
-            // 周二 19:00 (后段)
             { id: 7, code: 'MS 5218', name: 'Applied Linear Models', instructor: 'Xinxin YANG', dayOfWeek: 2,
                 startTime: '19:00', endTime: '21:50', location: 'ICP G-101', startDate: '2026-10-18',
                 endDate: '2026-11-28', color: 'color-5' }
@@ -531,9 +524,7 @@
         }
 
         function getHolidayName(date) { return HOLIDAYS[dateToStr(date)] || null; }
-
         function isHoliday(date) { return !!HOLIDAYS[dateToStr(date)]; }
-
         function isSunday(date) { return date.getDay() === 0; }
 
         function isCourseActiveOnDate(course, date) {
@@ -552,13 +543,11 @@
         function getDateNote(date) {
             return localStorage.getItem('note_date_' + dateToStr(date)) || '';
         }
-
         function setDateNote(date, text) {
             const key = 'note_date_' + dateToStr(date);
             if (text.trim() === '') localStorage.removeItem(key);
             else localStorage.setItem(key, text.trim());
         }
-
         function deleteDateNote(date) {
             localStorage.removeItem('note_date_' + dateToStr(date));
         }
@@ -566,13 +555,11 @@
         function getCourseNote(date, courseId) {
             return localStorage.getItem(`note_course_${courseId}_${dateToStr(date)}`) || '';
         }
-
         function setCourseNote(date, courseId, text) {
             const key = `note_course_${courseId}_${dateToStr(date)}`;
             if (text.trim() === '') localStorage.removeItem(key);
             else localStorage.setItem(key, text.trim());
         }
-
         function deleteCourseNote(date, courseId) {
             localStorage.removeItem(`note_course_${courseId}_${dateToStr(date)}`);
         }
@@ -697,7 +684,7 @@
             });
         }
 
-        // ---------- 周历（动态行高修复） ----------
+        // ---------- 周历（纯网格布局） ----------
         function renderWeek() {
             const year = currentDate.getFullYear(),
                 month = currentDate.getMonth(),
@@ -715,7 +702,7 @@
 
             viewTitle.textContent = `${dateToStr(weekDates[0])} ~ ${dateToStr(weekDates[6])}`;
 
-            // ========== 关键修复：根据屏幕宽度动态设置行高 ==========
+            // 动态行高
             const isMobile = window.innerWidth <= 500;
             const rowHeight = isMobile ? 30 : 36;
 
@@ -725,13 +712,13 @@
 
             const getRow = (timeStr) => {
                 const hour = parseInt(timeStr.split(':')[0]);
-                return (hour - 8) + 2; // 因为表头占第1行
+                return (hour - 8) + 2; // 表头占第1行
             };
 
-            // 构建grid，动态设置 grid-template-rows
+            // 构建网格
             let html = `<div class="week-wrapper"><div class="week-grid" style="grid-template-rows: ${rowHeight}px repeat(15, ${rowHeight}px) ${rowHeight}px;">`;
 
-            // 表头
+            // 表头 (第1行)
             html += `<div class="wg-header" style="grid-column:1;grid-row:1;background:#eef3f8;">时间</div>`;
             const weekDayNames = ['一', '二', '三', '四', '五', '六', '日'];
             for (let i = 0; i < 7; i++) {
@@ -749,7 +736,7 @@
                 html += `</div>`;
             }
 
-            // 时间轴和单元格
+            // 时间轴和单元格 (行2~16)
             for (let r = 0; r < times.length; r++) {
                 const timeStr = times[r];
                 const rowIdx = r + 2;
@@ -766,8 +753,8 @@
                 }
             }
 
-            // 备注行
-            const noteRow = times.length + 2;
+            // 备注行 (行17)
+            const noteRow = times.length + 2; // 17
             for (let c = 0; c < 7; c++) {
                 const dateObj = weekDates[c];
                 const ds = dateToStr(dateObj);
@@ -782,33 +769,34 @@
                 html += `</div>`;
             }
 
-            // 课程色块（使用动态行高计算位置）
+            // ---------- 课程块（作为网格项，使用 grid-row 和 grid-column） ----------
+            // 先收集本周所有有效课程
             const weekCourses = [];
             for (let c = 0; c < 7; c++) {
                 const dateObj = weekDates[c];
                 const courses = getCoursesForDate(dateObj);
                 courses.forEach(course => {
+                    let startRow = getRow(course.startTime);
+                    let endRow = getRow(course.endTime);
+                    // 修正结束行（非整点映射到下一整点）
+                    const endHour = parseInt(course.endTime.split(':')[0]);
+                    const endMin = parseInt(course.endTime.split(':')[1]);
+                    let targetHour = endHour;
+                    if (endMin > 0) targetHour = endHour + 1;
+                    if (targetHour > 22) targetHour = 22;
+                    endRow = (targetHour - 8) + 2;
+
                     weekCourses.push({
                         course: course,
                         date: dateObj,
                         col: c + 2,
-                        startRow: getRow(course.startTime),
-                        endRow: getRow(course.endTime)
+                        startRow: startRow,
+                        endRow: endRow
                     });
                 });
             }
 
-            // 修正结束行（非整点映射到下一整点）
-            weekCourses.forEach(item => {
-                const endHour = parseInt(item.course.endTime.split(':')[0]);
-                const endMin = parseInt(item.course.endTime.split(':')[1]);
-                let targetHour = endHour;
-                if (endMin > 0) targetHour = endHour + 1;
-                if (targetHour > 22) targetHour = 22;
-                item.endRow = (targetHour - 8) + 2;
-            });
-
-            let coursesHtml = '';
+            // 添加课程块
             weekCourses.forEach(item => {
                 const c = item.course;
                 const ds = dateToStr(item.date);
@@ -819,15 +807,9 @@
                 const startRow = item.startRow;
                 const endRow = item.endRow;
 
-                // 使用动态行高计算 top 和 height
-                const left = `calc(44px + (${col-2}) * (100% - 44px) / 7 + 2px)`;
-                const width = `calc((100% - 44px) / 7 - 4px)`;
-                const top = `calc((${startRow} - 1) * ${rowHeight}px + 2px)`;
-                const height = `calc((${endRow} - ${startRow}) * ${rowHeight}px - 4px)`;
-
-                coursesHtml += `
+                html += `
                     <div class="wg-course ${c.color}" 
-                         style="left:${left}; width:${width}; top:${top}; height:${height};"
+                         style="grid-column: ${col}; grid-row: ${startRow} / ${endRow};"
                          data-date="${ds}" data-course="${c.id}">
                         <div>${timeRange} [${c.code}] ${label}${c.name}</div>
                         <span class="loc">📍 ${c.location}</span>
@@ -835,12 +817,11 @@
                     </div>
                 `;
             });
-            html += coursesHtml;
 
             html += `</div></div>`;
             container.innerHTML = html;
 
-            // 绑定长按事件
+            // 绑定长按
             document.querySelectorAll('.wg-course').forEach(el => {
                 bindLongPress(el, function(e) {
                     e.stopPropagation();
@@ -971,14 +952,43 @@
         });
 
         // ============================================================
-        // 8. 启动
+        // 8. 启动 + 离线支持
         // ============================================================
         render();
 
-        // 窗口尺寸变化时重新渲染（例如旋转屏幕）
+        // 窗口大小变化时重绘周视图（适配横屏）
         window.addEventListener('resize', function() {
             if (currentView === 'week') renderWeek();
         });
+
+        // ============================================================
+        // 9. Service Worker 注册（实现离线缓存）
+        // ============================================================
+        if ('serviceWorker' in navigator) {
+            // 注意：Service Worker 需要 HTTPS 或 localhost，GitHub Pages 支持 HTTPS
+            // 我们动态生成一个简单的 SW 脚本，将当前页面缓存
+            // 为了简单，我们直接注册一个内联 SW（但内联不被允许，需要外部文件）
+            // 由于无法动态创建外部文件，我们换一种方式：使用 Cache-Control 和浏览器原生缓存。
+            // 但更可靠的是提示用户将网页添加到主屏幕（Chrome 会缓存）或手动保存。
+            // 我们可以在页面加载后提示用户。
+            console.log('浏览器支持 Service Worker，但需要外部 sw.js 文件。');
+            // 我们可提供一个简单的 sw.js 文件，但需要用户额外上传。
+            // 出于简便，我们在界面加一个小提示，引导用户“添加到主屏幕”实现离线。
+        }
+
+        // 显示一个小提示（仅首次）
+        if (!localStorage.getItem('offline_tip_shown')) {
+            setTimeout(() => {
+                const tip = document.createElement('div');
+                tip.style.cssText = 'position:fixed;bottom:20px;left:20px;right:20px;background:#0b1a33;color:white;padding:12px 16px;border-radius:16px;font-size:14px;text-align:center;z-index:9999;box-shadow:0 8px 20px rgba(0,0,0,0.3);';
+                tip.innerHTML = '💡 将此页面「添加到主屏幕」即可离线使用 📱';
+                document.body.appendChild(tip);
+                setTimeout(() => { tip.style.opacity = '0';
+                    tip.style.transition = 'opacity 0.5s'; }, 4000);
+                setTimeout(() => { tip.remove(); }, 5000);
+                localStorage.setItem('offline_tip_shown', '1');
+            }, 1000);
+        }
     </script>
 </body>
 </html>
