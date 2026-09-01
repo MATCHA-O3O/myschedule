@@ -102,7 +102,7 @@
             font-size: 13px;
         }
 
-        /* ===== 月历（修复溢出） ===== */
+        /* ===== 月历 ===== */
         .month-grid {
             display: grid;
             grid-template-columns: repeat(7, minmax(0, 1fr));
@@ -189,6 +189,12 @@
             margin-right: 2px;
             font-size: 7px;
         }
+        .course-chip .loc-tag {
+            font-weight: 400;
+            opacity: 0.85;
+            margin-left: 2px;
+            font-size: 7px;
+        }
         .day-note {
             font-size: 8px;
             color: #d35400;
@@ -209,7 +215,7 @@
             text-align: center;
         }
 
-        /* ===== 周历（固定行高 + 绝对定位色块） ===== */
+        /* ===== 周历 ===== */
         .week-wrapper {
             overflow-x: auto;
             margin-top: 10px;
@@ -293,7 +299,7 @@
         }
         .wg-course .loc {
             font-weight: 400;
-            opacity: 0.8;
+            opacity: 0.85;
             font-size: 8px;
             margin-top: 1px;
         }
@@ -413,7 +419,6 @@
         .modal-actions .btn-delete { background: #fee8e8; color: #b13e3e; margin-right: auto; }
         .modal-actions .btn-delete:active { background: #fdd5d5; }
 
-        /* ===== 手机优化 ===== */
         @media (max-width: 500px) {
             .container { padding: 10px 6px; }
             .header h1 { font-size: 17px; }
@@ -476,7 +481,7 @@
 
     <script>
         // ============================================================
-        // 1. 数据
+        // 1. 数据（地点已改为简称）
         // ============================================================
         const HOLIDAYS = {
             '2026-09-26': '中秋翌日',
@@ -489,23 +494,32 @@
         };
 
         const COURSES = [
-            { id: 1, name: 'Data Visualization', instructor: 'Zhiyin LI', dayOfWeek: 5, startTime: '19:00',
-            endTime: '21:50', location: 'LT-9', startDate: '2026-08-31', endDate: '2026-11-28', color: 'color-1' },
-            { id: 2, name: 'AI-Enhan BusAnal', instructor: 'Chaoyu ZHANG', dayOfWeek: 5, startTime: '12:00',
-                endTime: '14:50', location: 'LI-4412', startDate: '2026-08-31', endDate: '2026-11-28', color: 'color-2' },
-            { id: 3, name: 'Decision Analytics', instructor: 'Hester CHOW', dayOfWeek: 4, startTime: '19:00',
-                endTime: '21:50', location: 'LT-3', startDate: '2026-08-31', endDate: '2026-11-28', color: 'color-3' },
-            { id: 4, name: 'Statistical Data Analysis', instructor: 'SHAKEEL G.', dayOfWeek: 1, startTime: '19:00',
-                endTime: '21:50', location: 'LI-1503', startDate: '2026-08-31', endDate: '2026-10-17', color: 'color-4' },
-            { id: 5, name: 'Statistical Data Analysis', instructor: 'SHAKEEL G.', dayOfWeek: 2, startTime: '19:00',
-                endTime: '21:50', location: 'G-101', startDate: '2026-08-31', endDate: '2026-10-17', color: 'color-4' },
-            { id: 6, name: 'Applied Linear Models', instructor: 'Xinxin YANG', dayOfWeek: 1, startTime: '19:00',
-                endTime: '21:50', location: 'LI-1503', startDate: '2026-10-18', endDate: '2026-11-28', color: 'color-5' },
-            { id: 7, name: 'Applied Linear Models', instructor: 'Xinxin YANG', dayOfWeek: 2, startTime: '19:00',
-                endTime: '21:50', location: 'G-101', startDate: '2026-10-18', endDate: '2026-11-28', color: 'color-5' },
-            { id: 8, name: '🏃 Physical Fitness', instructor: 'Willie HUNG', dayOfWeek: 5, startTime: '15:00',
-                endTime: '15:50', location: '7-04', startDate: '2026-10-25', endDate: '2026-10-31', color: 'color-6',
-                isFlex: true }
+            // 周五
+            { id: 1, code: 'IS 6335', name: 'Data Visualization', instructor: 'Zhiyin LI', dayOfWeek: 5, startTime: '19:00',
+                endTime: '21:50', location: '杨楼 LT-9', startDate: '2026-08-31', endDate: '2026-11-28', color: 'color-1' },
+            { id: 2, code: 'MS 5215', name: 'AI-Enhan BusAnal', instructor: 'Chaoyu ZHANG', dayOfWeek: 5, startTime: '12:00',
+                endTime: '14:50', location: '李楼 4412', startDate: '2026-08-31', endDate: '2026-11-28', color: 'color-2' },
+            // 周四
+            { id: 3, code: 'MS 5216', name: 'Decision Analytics', instructor: 'Hester CHOW', dayOfWeek: 4, startTime: '19:00',
+                endTime: '21:50', location: '杨楼 LT-3', startDate: '2026-08-31', endDate: '2026-11-28', color: 'color-3' },
+            // 周一 + 周二（前段）
+            { id: 4, code: 'MS 5217', name: 'Statistical Data Analysis', instructor: 'SHAKEEL G.', dayOfWeek: 1,
+                startTime: '19:00', endTime: '21:50', location: '李楼 1503', startDate: '2026-08-31', endDate: '2026-10-17',
+                color: 'color-4' },
+            { id: 5, code: 'MS 5217', name: 'Statistical Data Analysis', instructor: 'SHAKEEL G.', dayOfWeek: 2,
+                startTime: '19:00', endTime: '21:50', location: 'ICP G-101', startDate: '2026-08-31', endDate: '2026-10-17',
+                color: 'color-4' },
+            // 周一 + 周二（后段）
+            { id: 6, code: 'MS 5218', name: 'Applied Linear Models', instructor: 'Xinxin YANG', dayOfWeek: 1,
+                startTime: '19:00', endTime: '21:50', location: '李楼 1503', startDate: '2026-10-18', endDate: '2026-11-28',
+                color: 'color-5' },
+            { id: 7, code: 'MS 5218', name: 'Applied Linear Models', instructor: 'Xinxin YANG', dayOfWeek: 2,
+                startTime: '19:00', endTime: '21:50', location: 'ICP G-101', startDate: '2026-10-18', endDate: '2026-11-28',
+                color: 'color-5' },
+            // 体育课（周五，仅一周）
+            { id: 8, code: 'PED 1305', name: 'Physical Fitness', instructor: 'Willie HUNG', dayOfWeek: 5, startTime: '15:00',
+                endTime: '15:50', location: 'Jockey Club One Health Tower 7-04', startDate: '2026-10-25',
+                endDate: '2026-10-31', color: 'color-6', isFlex: true }
         ];
 
         // ============================================================
@@ -652,9 +666,12 @@
                     courses.forEach(c => {
                         const t = c.startTime + '-' + c.endTime;
                         let label = c.isFlex ? '🏃' : '';
-                        label += c.name;
                         html +=
-                            `<div class="course-chip ${c.color}"><span class="time-tag">${t}</span> ${label}</div>`;
+                            `<div class="course-chip ${c.color}" title="${c.code} ${c.name} - ${c.location}">`;
+                        html += `<span class="time-tag">${t}</span>`;
+                        html += ` ${c.code}`;
+                        html += `<span class="loc-tag">📍${c.location}</span>`;
+                        html += `</div>`;
                     });
                     html += `</div>`;
                 } else {
@@ -809,8 +826,8 @@
                     <div class="wg-course ${c.color}" 
                          style="left:${left}; width:${width}; top:${top}; height:${height};"
                          data-date="${ds}" data-course="${c.id}">
-                        <div>${timeRange} ${label}${c.name}</div>
-                        <span class="loc">📍${c.location}</span>
+                        <div>${timeRange} [${c.code}] ${label}${c.name}</div>
+                        <span class="loc">📍 ${c.location}</span>
                         ${note ? `<div class="course-note">📝 ${note}</div>` : ''}
                     </div>
                 `;
@@ -873,7 +890,7 @@
                 existingNote = getDateNote(dateObj);
             } else {
                 const course = COURSES.find(c => c.id === courseId);
-                const cName = course ? course.name : '课程';
+                const cName = course ? `${course.code} ${course.name}` : '课程';
                 title = `📘 课程备忘 · ${cName}`;
                 sub = `${dateToStr(dateObj)}  ${course ? course.startTime + '-' + course.endTime : ''}`;
                 existingNote = getCourseNote(dateObj, courseId);
