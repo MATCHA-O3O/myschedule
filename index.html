@@ -5,338 +5,52 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>学期日程 · Semester A 2026/27</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-        }
-        body {
-            background: #f2f6fc;
-            padding: 10px 8px;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            touch-action: manipulation;
-        }
-        .container {
-            max-width: 900px;
-            width: 100%;
-            background: white;
-            border-radius: 24px;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
-            padding: 16px 12px 24px;
-        }
-        .header {
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 16px;
-            border-bottom: 1px solid #eef3f8;
-            padding-bottom: 10px;
-        }
-        .header h1 {
-            font-size: 20px;
-            font-weight: 700;
-            color: #0b1a33;
-        }
-        .header h1 small {
-            font-size: 12px;
-            font-weight: 400;
-            color: #6b7f9e;
-            margin-left: 6px;
-        }
-        .header-actions {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-        .btn-group {
-            display: flex;
-            background: #eef3f8;
-            border-radius: 30px;
-            padding: 3px;
-        }
-        .btn-group button {
-            background: transparent;
-            border: none;
-            padding: 5px 12px;
-            border-radius: 30px;
-            font-weight: 600;
-            font-size: 12px;
-            color: #4a5d7a;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        .btn-group button.active {
-            background: white;
-            color: #0b1a33;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
-        }
-        .nav-controls {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            background: #f8faff;
-            padding: 2px 8px 2px 10px;
-            border-radius: 30px;
-            border: 1px solid #e2eaf2;
-        }
-        .nav-controls button {
-            background: none;
-            border: none;
-            font-size: 18px;
-            cursor: pointer;
-            color: #2b405a;
-            padding: 0 4px;
-            border-radius: 20px;
-            line-height: 1;
-        }
-        .nav-controls span {
-            font-weight: 600;
-            color: #0b1a33;
-            min-width: 100px;
-            text-align: center;
-            font-size: 13px;
-        }
+        /* ===== 样式（完整） ===== */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; }
+        body { background: #f2f6fc; padding: 10px 8px; min-height: 100vh; display: flex; justify-content: center; touch-action: manipulation; }
+        .container { max-width: 900px; width: 100%; background: white; border-radius: 24px; box-shadow: 0 8px 30px rgba(0,0,0,0.05); padding: 16px 12px 24px; }
+        .header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; margin-bottom: 16px; border-bottom: 1px solid #eef3f8; padding-bottom: 10px; }
+        .header h1 { font-size: 20px; font-weight: 700; color: #0b1a33; }
+        .header h1 small { font-size: 12px; font-weight: 400; color: #6b7f9e; margin-left: 6px; }
+        .header-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+        .btn-group { display: flex; background: #eef3f8; border-radius: 30px; padding: 3px; }
+        .btn-group button { background: transparent; border: none; padding: 5px 12px; border-radius: 30px; font-weight: 600; font-size: 12px; color: #4a5d7a; cursor: pointer; transition: 0.2s; }
+        .btn-group button.active { background: white; color: #0b1a33; box-shadow: 0 2px 6px rgba(0,0,0,0.04); }
+        .nav-controls { display: flex; align-items: center; gap: 6px; background: #f8faff; padding: 2px 8px 2px 10px; border-radius: 30px; border: 1px solid #e2eaf2; }
+        .nav-controls button { background: none; border: none; font-size: 18px; cursor: pointer; color: #2b405a; padding: 0 4px; border-radius: 20px; line-height: 1; }
+        .nav-controls span { font-weight: 600; color: #0b1a33; min-width: 100px; text-align: center; font-size: 13px; }
 
-        /* ===== 月历 ===== */
-        .month-grid {
-            display: grid;
-            grid-template-columns: repeat(7, minmax(0, 1fr));
-            gap: 4px;
-            margin-top: 6px;
-        }
-        .weekday-label {
-            text-align: center;
-            font-weight: 600;
-            font-size: 11px;
-            color: #6b7f9e;
-            padding: 6px 0 2px;
-        }
-        .day-cell {
-            background: #fafcff;
-            border-radius: 12px;
-            min-height: 68px;
-            padding: 4px 3px;
-            border: 1px solid #eef3f8;
-            display: flex;
-            flex-direction: column;
-            -webkit-touch-callout: none;
-            -webkit-user-select: none;
-            user-select: none;
-            overflow: hidden;
-        }
-        .day-cell.holiday {
-            background: #fff4ed;
-            border-color: #ffd9c4;
-        }
-        .day-cell.holiday .day-number {
-            color: #c0392b;
-        }
-        .day-cell.sunday {
-            background: #fdf6f6;
-        }
-        .day-cell.sunday .day-number {
-            color: #c0392b;
-        }
-        .day-cell.other-month {
-            opacity: 0.2;
-            pointer-events: none;
-        }
-        .day-number {
-            font-weight: 700;
-            font-size: 14px;
-            color: #1f2a44;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2px;
-        }
-        .day-number .holiday-tag {
-            font-size: 7px;
-            background: #e74c3c;
-            color: white;
-            padding: 1px 5px;
-            border-radius: 30px;
-            font-weight: 700;
-            white-space: nowrap;
-        }
-        .day-courses {
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-            flex: 1;
-            overflow: hidden;
-        }
-        .course-chip {
-            font-size: 8px;
-            font-weight: 600;
-            padding: 2px 4px;
-            border-radius: 12px;
-            color: white;
-            line-height: 1.3;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        .course-chip .time-tag {
-            font-weight: 400;
-            opacity: 0.85;
-            margin-right: 2px;
-            font-size: 7px;
-        }
-        .course-chip .loc-tag {
-            font-weight: 400;
-            opacity: 0.85;
-            margin-left: 2px;
-            font-size: 7px;
-        }
-        .day-note {
-            font-size: 8px;
-            color: #d35400;
-            background: #fef9f0;
-            padding: 1px 5px;
-            border-radius: 10px;
-            margin-top: 2px;
-            border-left: 2px solid #f39c12;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            font-weight: 500;
-        }
-        .empty-state {
-            color: #b0c4dd;
-            font-size: 9px;
-            padding: 2px 0;
-            text-align: center;
-        }
+        .month-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; margin-top: 6px; }
+        .weekday-label { text-align: center; font-weight: 600; font-size: 11px; color: #6b7f9e; padding: 6px 0 2px; }
+        .day-cell { background: #fafcff; border-radius: 12px; min-height: 68px; padding: 4px 3px; border: 1px solid #eef3f8; display: flex; flex-direction: column; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; overflow: hidden; }
+        .day-cell.holiday { background: #fff4ed; border-color: #ffd9c4; }
+        .day-cell.holiday .day-number { color: #c0392b; }
+        .day-cell.sunday { background: #fdf6f6; }
+        .day-cell.sunday .day-number { color: #c0392b; }
+        .day-cell.other-month { opacity: 0.2; pointer-events: none; }
+        .day-number { font-weight: 700; font-size: 14px; color: #1f2a44; display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px; }
+        .day-number .holiday-tag { font-size: 7px; background: #e74c3c; color: white; padding: 1px 5px; border-radius: 30px; font-weight: 700; white-space: nowrap; }
+        .day-courses { display: flex; flex-direction: column; gap: 2px; flex: 1; overflow: hidden; }
+        .course-chip { font-size: 8px; font-weight: 600; padding: 2px 4px; border-radius: 12px; color: white; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border: 1px solid rgba(255,255,255,0.2); }
+        .course-chip .time-tag { font-weight: 400; opacity: 0.85; margin-right: 2px; font-size: 7px; }
+        .course-chip .loc-tag { font-weight: 400; opacity: 0.85; margin-left: 2px; font-size: 7px; }
+        .day-note { font-size: 8px; color: #d35400; background: #fef9f0; padding: 1px 5px; border-radius: 10px; margin-top: 2px; border-left: 2px solid #f39c12; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500; }
+        .empty-state { color: #b0c4dd; font-size: 9px; padding: 2px 0; text-align: center; }
 
-        /* ===== 周历 ===== */
-        .week-wrapper {
-            overflow-x: auto;
-            margin-top: 10px;
-            border-radius: 12px;
-            border: 1px solid #eef3f8;
-            background: #fafcff;
-            position: relative;
-        }
-        .week-grid {
-            display: grid;
-            grid-template-rows: 36px repeat(15, 36px) 36px;
-            grid-template-columns: 44px repeat(7, 1fr);
-            min-width: 600px;
-            position: relative;
-        }
-        .wg-header {
-            background: #f4f8fe;
-            font-weight: 600;
-            font-size: 12px;
-            color: #1f2a44;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-bottom: 1px solid #e2eaf2;
-            border-right: 1px solid #e2eaf2;
-            padding: 2px;
-            text-align: center;
-            position: sticky;
-            top: 0;
-            z-index: 2;
-        }
-        .wg-header .holiday-tag {
-            font-size: 7px;
-            background: #e74c3c;
-            color: white;
-            padding: 1px 5px;
-            border-radius: 20px;
-            margin-left: 4px;
-            white-space: nowrap;
-        }
-        .wg-time {
-            background: #f8faff;
-            font-size: 10px;
-            color: #6b7f9e;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-right: 1px solid #e2eaf2;
-            border-bottom: 1px solid #e2eaf2;
-        }
-        .wg-cell {
-            border-right: 1px solid #e2eaf2;
-            border-bottom: 1px solid #e2eaf2;
-            background: white;
-            position: relative;
-            min-height: 36px;
-        }
-        .wg-cell.holiday-bg {
-            background: #fff9f5;
-        }
-        .wg-cell.sunday-bg {
-            background: #fdf6f6;
-        }
-        .wg-course {
-            position: absolute;
-            border-radius: 8px;
-            color: white;
-            font-weight: 600;
-            font-size: 10px;
-            padding: 4px 6px;
-            overflow: hidden;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
-            border: 1px solid rgba(255, 255, 255, 0.25);
-            z-index: 5;
-            cursor: default;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            pointer-events: auto;
-            box-sizing: border-box;
-        }
-        .wg-course .loc {
-            font-weight: 400;
-            opacity: 0.85;
-            font-size: 8px;
-            margin-top: 1px;
-        }
-        .wg-course .course-note {
-            font-size: 7px;
-            background: rgba(0, 0, 0, 0.2);
-            padding: 1px 5px;
-            border-radius: 8px;
-            margin-top: 2px;
-            color: #fff9e6;
-            border-left: 2px solid #ffd966;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .wg-daynote {
-            background: #fefcf8;
-            font-size: 8px;
-            color: #d35400;
-            padding: 2px 4px;
-            border-top: 1px dashed #f0e4d0;
-            text-align: center;
-            border-right: 1px solid #e2eaf2;
-            font-weight: 500;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .wg-daynote.holiday-bg {
-            background: #fff4ed;
-        }
-        .wg-daynote.sunday-bg {
-            background: #fdf6f6;
-        }
+        .week-wrapper { overflow-x: auto; margin-top: 10px; border-radius: 12px; border: 1px solid #eef3f8; background: #fafcff; position: relative; }
+        .week-grid { display: grid; grid-template-rows: 36px repeat(15, 36px) 36px; grid-template-columns: 44px repeat(7, 1fr); min-width: 600px; position: relative; }
+        .wg-header { background: #f4f8fe; font-weight: 600; font-size: 12px; color: #1f2a44; display: flex; align-items: center; justify-content: center; border-bottom: 1px solid #e2eaf2; border-right: 1px solid #e2eaf2; padding: 2px; text-align: center; position: sticky; top: 0; z-index: 2; }
+        .wg-header .holiday-tag { font-size: 7px; background: #e74c3c; color: white; padding: 1px 5px; border-radius: 20px; margin-left: 4px; white-space: nowrap; }
+        .wg-time { background: #f8faff; font-size: 10px; color: #6b7f9e; display: flex; align-items: center; justify-content: center; border-right: 1px solid #e2eaf2; border-bottom: 1px solid #e2eaf2; }
+        .wg-cell { border-right: 1px solid #e2eaf2; border-bottom: 1px solid #e2eaf2; background: white; position: relative; min-height: 36px; }
+        .wg-cell.holiday-bg { background: #fff9f5; }
+        .wg-cell.sunday-bg { background: #fdf6f6; }
+        .wg-course { position: absolute; border-radius: 8px; color: white; font-weight: 600; font-size: 10px; padding: 4px 6px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.06); border: 1px solid rgba(255,255,255,0.25); z-index: 5; cursor: default; display: flex; flex-direction: column; justify-content: center; pointer-events: auto; box-sizing: border-box; }
+        .wg-course .loc { font-weight: 400; opacity: 0.85; font-size: 8px; margin-top: 1px; }
+        .wg-course .course-note { font-size: 7px; background: rgba(0,0,0,0.2); padding: 1px 5px; border-radius: 8px; margin-top: 2px; color: #fff9e6; border-left: 2px solid #ffd966; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .wg-daynote { background: #fefcf8; font-size: 8px; color: #d35400; padding: 2px 4px; border-top: 1px dashed #f0e4d0; text-align: center; border-right: 1px solid #e2eaf2; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: flex; align-items: center; justify-content: center; }
+        .wg-daynote.holiday-bg { background: #fff4ed; }
+        .wg-daynote.sunday-bg { background: #fdf6f6; }
 
         .color-1 { background: #2b6c9e; }
         .color-2 { background: #2d8f6f; }
@@ -345,73 +59,16 @@
         .color-5 { background: #b58a3a; }
         .color-6 { background: #c05a7a; }
 
-        /* ===== 模态框 ===== */
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.3);
-            backdrop-filter: blur(4px);
-            justify-content: center;
-            align-items: center;
-            z-index: 999;
-            padding: 20px;
-        }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); backdrop-filter: blur(4px); justify-content: center; align-items: center; z-index: 999; padding: 20px; }
         .modal-overlay.show { display: flex; }
-        .modal-box {
-            background: white;
-            border-radius: 28px;
-            padding: 24px 20px;
-            max-width: 380px;
-            width: 100%;
-            box-shadow: 0 30px 80px rgba(0,0,0,0.2);
-            animation: fadeUp 0.2s ease;
-        }
-        @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .modal-box h3 {
-            font-size: 18px;
-            margin-bottom: 2px;
-            color: #0b1a33;
-        }
-        .modal-box .sub {
-            color: #6b7f9e;
-            font-size: 13px;
-            margin-bottom: 14px;
-        }
-        .modal-box textarea {
-            width: 100%;
-            border: 1px solid #dce5ef;
-            border-radius: 16px;
-            padding: 12px 14px;
-            font-size: 14px;
-            resize: vertical;
-            min-height: 80px;
-            font-family: inherit;
-            background: #fafcff;
-        }
-        .modal-box textarea:focus {
-            outline: none;
-            border-color: #2b6c9e;
-            box-shadow: 0 0 0 3px rgba(43,108,158,0.08);
-        }
-        .modal-actions {
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-            margin-top: 16px;
-        }
-        .modal-actions button {
-            border: none;
-            padding: 8px 18px;
-            border-radius: 40px;
-            font-weight: 600;
-            font-size: 13px;
-            cursor: pointer;
-            transition: 0.15s;
-        }
+        .modal-box { background: white; border-radius: 28px; padding: 24px 20px; max-width: 380px; width: 100%; box-shadow: 0 30px 80px rgba(0,0,0,0.2); animation: fadeUp 0.2s ease; }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .modal-box h3 { font-size: 18px; margin-bottom: 2px; color: #0b1a33; }
+        .modal-box .sub { color: #6b7f9e; font-size: 13px; margin-bottom: 14px; }
+        .modal-box textarea { width: 100%; border: 1px solid #dce5ef; border-radius: 16px; padding: 12px 14px; font-size: 14px; resize: vertical; min-height: 80px; font-family: inherit; background: #fafcff; }
+        .modal-box textarea:focus { outline: none; border-color: #2b6c9e; box-shadow: 0 0 0 3px rgba(43,108,158,0.08); }
+        .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 16px; }
+        .modal-actions button { border: none; padding: 8px 18px; border-radius: 40px; font-weight: 600; font-size: 13px; cursor: pointer; transition: 0.15s; }
         .modal-actions .btn-save { background: #0b1a33; color: white; }
         .modal-actions .btn-save:active { background: #1f3357; }
         .modal-actions .btn-cancel { background: #eef3f8; color: #4a5d7a; }
@@ -428,18 +85,10 @@
             .day-cell { min-height: 56px; padding: 3px 2px; }
             .day-number { font-size: 12px; }
             .course-chip { font-size: 7px; padding: 1px 3px; }
-            .week-grid {
-                grid-template-columns: 36px repeat(7, minmax(44px, 1fr));
-                grid-template-rows: 30px repeat(15, 30px) 30px;
-                min-width: 400px;
-            }
+            .week-grid { grid-template-columns: 36px repeat(7, minmax(44px, 1fr)); grid-template-rows: 30px repeat(15, 30px) 30px; min-width: 400px; }
             .wg-header { font-size: 10px; }
             .wg-time { font-size: 8px; }
-            .wg-course {
-                font-size: 8px;
-                padding: 2px 4px;
-                border-radius: 4px;
-            }
+            .wg-course { font-size: 8px; padding: 2px 4px; border-radius: 4px; }
             .wg-course .loc { font-size: 6px; }
             .wg-course .course-note { font-size: 6px; }
             .modal-box { padding: 18px 16px; }
@@ -465,7 +114,6 @@
         <div id="calendarContainer"></div>
     </div>
 
-    <!-- 模态框 -->
     <div class="modal-overlay" id="noteModal">
         <div class="modal-box">
             <h3 id="modalDateTitle">📌 备注</h3>
@@ -481,7 +129,7 @@
 
     <script>
         // ============================================================
-        // 1. 数据（地点已改为简称）
+        // 1. 数据（严格按课表校正）
         // ============================================================
         const HOLIDAYS = {
             '2026-09-26': '中秋翌日',
@@ -494,36 +142,42 @@
         };
 
         const COURSES = [
-            // 周五
-            { id: 1, code: 'IS 6335', name: 'Data Visualization', instructor: 'Zhiyin LI', dayOfWeek: 5, startTime: '19:00',
-                endTime: '21:50', location: '杨楼 LT-9', startDate: '2026-08-31', endDate: '2026-11-28', color: 'color-1' },
-            { id: 2, code: 'MS 5215', name: 'AI-Enhan BusAnal', instructor: 'Chaoyu ZHANG', dayOfWeek: 5, startTime: '12:00',
-                endTime: '14:50', location: '李楼 4412', startDate: '2026-08-31', endDate: '2026-11-28', color: 'color-2' },
-            // 周四
-            { id: 3, code: 'MS 5216', name: 'Decision Analytics', instructor: 'Hester CHOW', dayOfWeek: 4, startTime: '19:00',
-                endTime: '21:50', location: '杨楼 LT-3', startDate: '2026-08-31', endDate: '2026-11-28', color: 'color-3' },
-            // 周一 + 周二（前段）
+            // 周一 19:00 (前段)
             { id: 4, code: 'MS 5217', name: 'Statistical Data Analysis', instructor: 'SHAKEEL G.', dayOfWeek: 1,
-                startTime: '19:00', endTime: '21:50', location: '李楼 1503', startDate: '2026-08-31', endDate: '2026-10-17',
-                color: 'color-4' },
+                startTime: '19:00', endTime: '21:50', location: '李楼 1503', startDate: '2026-08-31',
+                endDate: '2026-10-17', color: 'color-4' },
+            // 周二 19:00 (前段)
             { id: 5, code: 'MS 5217', name: 'Statistical Data Analysis', instructor: 'SHAKEEL G.', dayOfWeek: 2,
-                startTime: '19:00', endTime: '21:50', location: 'ICP G-101', startDate: '2026-08-31', endDate: '2026-10-17',
-                color: 'color-4' },
-            // 周一 + 周二（后段）
+                startTime: '19:00', endTime: '21:50', location: 'ICP G-101', startDate: '2026-08-31',
+                endDate: '2026-10-17', color: 'color-4' },
+            // 周四 19:00
+            { id: 3, code: 'MS 5216', name: 'Decision Analytics', instructor: 'Hester CHOW', dayOfWeek: 4,
+                startTime: '19:00', endTime: '21:50', location: '杨楼 LT-3', startDate: '2026-08-31',
+                endDate: '2026-11-28', color: 'color-3' },
+            // 周五 12:00
+            { id: 2, code: 'MS 5215', name: 'AI-Enhan BusAnal', instructor: 'Chaoyu ZHANG', dayOfWeek: 5,
+                startTime: '12:00', endTime: '14:50', location: '李楼 4412', startDate: '2026-08-31',
+                endDate: '2026-11-28', color: 'color-2' },
+            // 周五 19:00
+            { id: 1, code: 'IS 6335', name: 'Data Visualization', instructor: 'Zhiyin LI', dayOfWeek: 5,
+                startTime: '19:00', endTime: '21:50', location: '杨楼 LT-9', startDate: '2026-08-31',
+                endDate: '2026-11-28', color: 'color-1' },
+            // 体育课 周五 15:00 (仅 10.25-10.31)
+            { id: 8, code: 'PED 1305', name: 'Physical Fitness', instructor: 'Willie HUNG', dayOfWeek: 5,
+                startTime: '15:00', endTime: '15:50', location: 'Jockey Club One Health Tower 7-04',
+                startDate: '2026-10-25', endDate: '2026-10-31', color: 'color-6', isFlex: true },
+            // 周一 19:00 (后段)
             { id: 6, code: 'MS 5218', name: 'Applied Linear Models', instructor: 'Xinxin YANG', dayOfWeek: 1,
-                startTime: '19:00', endTime: '21:50', location: '李楼 1503', startDate: '2026-10-18', endDate: '2026-11-28',
-                color: 'color-5' },
+                startTime: '19:00', endTime: '21:50', location: '李楼 1503', startDate: '2026-10-18',
+                endDate: '2026-11-28', color: 'color-5' },
+            // 周二 19:00 (后段)
             { id: 7, code: 'MS 5218', name: 'Applied Linear Models', instructor: 'Xinxin YANG', dayOfWeek: 2,
-                startTime: '19:00', endTime: '21:50', location: 'ICP G-101', startDate: '2026-10-18', endDate: '2026-11-28',
-                color: 'color-5' },
-            // 体育课（周五，仅一周）
-            { id: 8, code: 'PED 1305', name: 'Physical Fitness', instructor: 'Willie HUNG', dayOfWeek: 5, startTime: '15:00',
-                endTime: '15:50', location: 'Jockey Club One Health Tower 7-04', startDate: '2026-10-25',
-                endDate: '2026-10-31', color: 'color-6', isFlex: true }
+                startTime: '19:00', endTime: '21:50', location: 'ICP G-101', startDate: '2026-10-18',
+                endDate: '2026-11-28', color: 'color-5' }
         ];
 
         // ============================================================
-        // 2. 工具函数
+        // 2. 工具函数（完全不变）
         // ============================================================
         function dateToStr(date) {
             const y = date.getFullYear();
@@ -589,10 +243,8 @@
                 if (stopPropagation) e.stopPropagation();
                 timer = setTimeout(() => { callback(e); }, 500);
             };
-            const end = () => { if (timer) { clearTimeout(timer);
-                    timer = null; } };
-            const move = () => { if (timer) { clearTimeout(timer);
-                    timer = null; } };
+            const end = () => { if (timer) { clearTimeout(timer); timer = null; } };
+            const move = () => { if (timer) { clearTimeout(timer); timer = null; } };
             element.addEventListener('mousedown', start);
             element.addEventListener('mouseup', end);
             element.addEventListener('mouseleave', end);
@@ -614,17 +266,15 @@
         const viewTitle = document.getElementById('viewTitle');
 
         // ============================================================
-        // 5. 渲染
+        // 5. 渲染引擎（完全不变）
         // ============================================================
         function render() {
             if (currentView === 'month') renderMonth();
             else renderWeek();
         }
 
-        // ---------- 月历 ----------
         function renderMonth() {
-            const year = currentDate.getFullYear(),
-                month = currentDate.getMonth();
+            const year = currentDate.getFullYear(), month = currentDate.getMonth();
             viewTitle.textContent = `${year}年${month+1}月`;
 
             const firstDay = new Date(year, month, 1);
@@ -666,8 +316,7 @@
                     courses.forEach(c => {
                         const t = c.startTime + '-' + c.endTime;
                         let label = c.isFlex ? '🏃' : '';
-                        html +=
-                            `<div class="course-chip ${c.color}" title="${c.code} ${c.name} - ${c.location}">`;
+                        html += `<div class="course-chip ${c.color}" title="${c.code} ${c.name} - ${c.location}">`;
                         html += `<span class="time-tag">${t}</span>`;
                         html += ` ${c.code}`;
                         html += `<span class="loc-tag">📍${c.location}</span>`;
@@ -702,11 +351,8 @@
             });
         }
 
-        // ---------- 周历 ----------
         function renderWeek() {
-            const year = currentDate.getFullYear(),
-                month = currentDate.getMonth(),
-                day = currentDate.getDate();
+            const year = currentDate.getFullYear(), month = currentDate.getMonth(), day = currentDate.getDate();
             const dow = currentDate.getDay();
             let mondayOffset = (dow === 0) ? -6 : 1 - dow;
             const monday = new Date(year, month, day + mondayOffset);
@@ -731,7 +377,6 @@
 
             let html = `<div class="week-wrapper"><div class="week-grid">`;
 
-            // 表头
             html += `<div class="wg-header" style="grid-column:1;grid-row:1;background:#eef3f8;">时间</div>`;
             const weekDayNames = ['一', '二', '三', '四', '五', '六', '日'];
             for (let i = 0; i < 7; i++) {
@@ -749,7 +394,6 @@
                 html += `</div>`;
             }
 
-            // 时间轴和单元格
             for (let r = 0; r < times.length; r++) {
                 const timeStr = times[r];
                 const rowIdx = r + 2;
@@ -766,7 +410,6 @@
                 }
             }
 
-            // 备注行
             const noteRow = times.length + 2;
             for (let c = 0; c < 7; c++) {
                 const dateObj = weekDates[c];
@@ -782,7 +425,6 @@
                 html += `</div>`;
             }
 
-            // 课程色块
             const weekCourses = [];
             for (let c = 0; c < 7; c++) {
                 const dateObj = weekDates[c];
@@ -837,7 +479,6 @@
             html += `</div></div>`;
             container.innerHTML = html;
 
-            // 绑定长按
             document.querySelectorAll('.wg-course').forEach(el => {
                 bindLongPress(el, function(e) {
                     e.stopPropagation();
@@ -880,9 +521,7 @@
             modalCourseId = courseId;
 
             const dateObj = new Date(dateStr + 'T00:00:00');
-            let title = '',
-                existingNote = '',
-                sub = '';
+            let title = '', existingNote = '', sub = '';
 
             if (mode === 'date') {
                 title = `📅 当日备忘`;
