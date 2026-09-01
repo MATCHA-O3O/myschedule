@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>学期日程 · Semester A 2026/27</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+        }
+        body {
+            background: #f2f6fc;
+            padding: 10px 8px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            touch-action: manipulation;
+        }
+        .container {
+            max-width: 900px;
+            width: 100%;
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
+            padding: 16px 12px 24px;
+        }
+        .header {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            border-bottom: 1px solid #eef3f8;
+            padding-bottom: 10px;
+        }
+        .header h1 {
+            font-size: 20px;
+            font-weight: 700;
+            color: #0b1a33;
+        }
+        .header h1 small {
+            font-size: 12px;
+            font-weight: 400;
+            color: #6b7f9e;
+            margin-left: 6px;
+        }
+        .header-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .btn-group {
+            display: flex;
+            background: #eef3f8;
+            border-radius: 30px;
+            padding: 3px;
+        }
+        .btn-group button {
+            background: transparent;
+            border: none;
+            padding: 5px 12px;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 12px;
+            color: #4a5d7a;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .btn-group button.active {
+            background: white;
+            color: #0b1a33;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+        }
+        .nav-controls {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: #f8faff;
+            padding: 2px 8px 2px 10px;
+            border-radius: 30px;
+            border: 1px solid #e2eaf2;
+        }
+        .nav-controls button {
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            color: #2b405a;
+            padding: 0 4px;
+            border-radius: 20px;
+            line-height: 1;
+        }
+        .nav-controls span {
+            font-weight: 600;
+            color: #0b1a33;
+            min-width: 100px;
+            text-align: center;
+            font-size: 13px;
+        }
+
+        /* ===== 月历（修复溢出） ===== */
+        .month-grid {
+            display: grid;
+            grid-template-columns: repeat(7, minmax(0, 1fr));
+            gap: 4px;
+            margin-top: 6px;
+        }
+        .weekday-label {
+            text-align: center;
+            font-weight: 600;
+            font-size: 11px;
+            color: #6b7f9e;
+            padding: 6px 0 2px;
+        }
+        .day-cell {
+            background: #fafcff;
+            border-radius: 12px;
+            min-height: 68px;
+            padding: 4px 3px;
+            border: 1px solid #eef3f8;
+            display: flex;
+            flex-direction: column;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+            overflow: hidden;
+        }
+        .day-cell.holiday {
+            background: #fff4ed;
+            border-color: #ffd9c4;
+        }
+        .day-cell.holiday .day-number {
+            color: #c0392b;
+        }
+        .day-cell.sunday {
+            background: #fdf6f6;
+        }
+        .day-cell.sunday .day-number {
+            color: #c0392b;
+        }
+        .day-cell.other-month {
+            opacity: 0.2;
+            pointer-events: none;
+        }
+        .day-number {
+            font-weight: 700;
+            font-size: 14px;
+            color: #1f2a44;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2px;
+        }
+        .day-number .holiday-tag {
+            font-size: 7px;
+            background: #e74c3c;
+            color: white;
+            padding: 1px 5px;
+            border-radius: 30px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+        .day-courses {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            flex: 1;
+            overflow: hidden;
+        }
+        .course-chip {
+            font-size: 8px;
+            font-weight: 600;
+            padding: 2px 4px;
+            border-radius: 12px;
+            color: white;
+            line-height: 1.3;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .course-chip .time-tag {
+            font-weight: 400;
+            opacity: 0.85;
+            margin-right: 2px;
+            font-size: 7px;
+        }
+        .day-note {
+            font-size: 8px;
+            color: #d35400;
+            background: #fef9f0;
+            padding: 1px 5px;
+            border-radius: 10px;
+            margin-top: 2px;
+            border-left: 2px solid #f39c12;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-weight: 500;
+        }
+        .empty-state {
+            color: #b0c4dd;
+            font-size: 9px;
+            padding: 2px 0;
+            text-align: center;
+        }
+
+        /* ===== 周历（固定行高 + 绝对定位色块） ===== */
+        .week-wrapper {
+            overflow-x: auto;
+            margin-top: 10px;
+            border-radius: 12px;
+            border: 1px solid #eef3f8;
+            background: #fafcff;
+            position: relative;
+        }
+        .week-grid {
+            display: grid;
+            grid-template-rows: 36px repeat(15, 36px) 36px;
+            grid-template-columns: 44px repeat(7, 1fr);
+            min-width: 600px;
+            position: relative;
+        }
+        .wg-header {
+            background: #f4f8fe;
+            font-weight: 600;
+            font-size: 12px;
+            color: #1f2a44;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-bottom: 1px solid #e2eaf2;
+            border-right: 1px solid #e2eaf2;
+            padding: 2px;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 2;
+        }
+        .wg-header .holiday-tag {
+            font-size: 7px;
+            background: #e74c3c;
+            color: white;
+            padding: 1px 5px;
+            border-radius: 20px;
+            margin-left: 4px;
+            white-space: nowrap;
+        }
+        .wg-time {
+            background: #f8faff;
+            font-size: 10px;
+            color: #6b7f9e;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-right: 1px solid #e2eaf2;
+            border-bottom: 1px solid #e2eaf2;
+        }
+        .wg-cell {
+            border-right: 1px solid #e2eaf2;
+            border-bottom: 1px solid #e2eaf2;
+            background: white;
+            position: relative;
+            min-height: 36px;
+        }
+        .wg-cell.holiday-bg {
+            background: #fff9f5;
+        }
+        .wg-cell.sunday-bg {
+            background: #fdf6f6;
+        }
+        .wg-course {
+            position: absolute;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            font-size: 10px;
+            padding: 4px 6px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            z-index: 5;
+            cursor: default;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            pointer-events: auto;
+            box-sizing: border-box;
+        }
+        .wg-course .loc {
+            font-weight: 400;
+            opacity: 0.8;
+            font-size: 8px;
+            margin-top: 1px;
+        }
+        .wg-course .course-note {
+            font-size: 7px;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 1px 5px;
+            border-radius: 8px;
+            margin-top: 2px;
+            color: #fff9e6;
+            border-left: 2px solid #ffd966;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .wg-daynote {
+            background: #fefcf8;
+            font-size: 8px;
+            color: #d35400;
+            padding: 2px 4px;
+            border-top: 1px dashed #f0e4d0;
+            text-align: center;
+            border-right: 1px solid #e2eaf2;
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .wg-daynote.holiday-bg {
+            background: #fff4ed;
+        }
+        .wg-daynote.sunday-bg {
+            background: #fdf6f6;
+        }
+
+        .color-1 { background: #2b6c9e; }
+        .color-2 { background: #2d8f6f; }
+        .color-3 { background: #b6573a; }
+        .color-4 { background: #8e5b9e; }
+        .color-5 { background: #b58a3a; }
+        .color-6 { background: #c05a7a; }
+
+        /* ===== 模态框 ===== */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.3);
+            backdrop-filter: blur(4px);
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+            padding: 20px;
+        }
+        .modal-overlay.show { display: flex; }
+        .modal-box {
+            background: white;
+            border-radius: 28px;
+            padding: 24px 20px;
+            max-width: 380px;
+            width: 100%;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.2);
+            animation: fadeUp 0.2s ease;
+        }
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .modal-box h3 {
+            font-size: 18px;
+            margin-bottom: 2px;
+            color: #0b1a33;
+        }
+        .modal-box .sub {
+            color: #6b7f9e;
+            font-size: 13px;
+            margin-bottom: 14px;
+        }
+        .modal-box textarea {
+            width: 100%;
+            border: 1px solid #dce5ef;
+            border-radius: 16px;
+            padding: 12px 14px;
+            font-size: 14px;
+            resize: vertical;
+            min-height: 80px;
+            font-family: inherit;
+            background: #fafcff;
+        }
+        .modal-box textarea:focus {
+            outline: none;
+            border-color: #2b6c9e;
+            box-shadow: 0 0 0 3px rgba(43,108,158,0.08);
+        }
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 16px;
+        }
+        .modal-actions button {
+            border: none;
+            padding: 8px 18px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            transition: 0.15s;
+        }
+        .modal-actions .btn-save { background: #0b1a33; color: white; }
+        .modal-actions .btn-save:active { background: #1f3357; }
+        .modal-actions .btn-cancel { background: #eef3f8; color: #4a5d7a; }
+        .modal-actions .btn-cancel:active { background: #dce5ef; }
+        .modal-actions .btn-delete { background: #fee8e8; color: #b13e3e; margin-right: auto; }
+        .modal-actions .btn-delete:active { background: #fdd5d5; }
+
+        /* ===== 手机优化 ===== */
+        @media (max-width: 500px) {
+            .container { padding: 10px 6px; }
+            .header h1 { font-size: 17px; }
+            .header h1 small { font-size: 10px; }
+            .btn-group button { font-size: 11px; padding: 4px 8px; }
+            .nav-controls span { min-width: 70px; font-size: 12px; }
+            .day-cell { min-height: 56px; padding: 3px 2px; }
+            .day-number { font-size: 12px; }
+            .course-chip { font-size: 7px; padding: 1px 3px; }
+            .week-grid {
+                grid-template-columns: 36px repeat(7, minmax(44px, 1fr));
+                grid-template-rows: 30px repeat(15, 30px) 30px;
+                min-width: 400px;
+            }
+            .wg-header { font-size: 10px; }
+            .wg-time { font-size: 8px; }
+            .wg-course {
+                font-size: 8px;
+                padding: 2px 4px;
+                border-radius: 4px;
+            }
+            .wg-course .loc { font-size: 6px; }
+            .wg-course .course-note { font-size: 6px; }
+            .modal-box { padding: 18px 16px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="app">
+        <div class="header">
+            <h1>📚 日程 <small>Sem A</small></h1>
+            <div class="header-actions">
+                <div class="btn-group">
+                    <button class="active" data-view="month">月</button>
+                    <button data-view="week">周</button>
+                </div>
+                <div class="nav-controls">
+                    <button id="prevBtn">‹</button>
+                    <span id="viewTitle">2026年9月</span>
+                    <button id="nextBtn">›</button>
+                </div>
+            </div>
+        </div>
+        <div id="calendarContainer"></div>
+    </div>
+
+    <!-- 模态框 -->
+    <div class="modal-overlay" id="noteModal">
+        <div class="modal-box">
+            <h3 id="modalDateTitle">📌 备注</h3>
+            <div class="sub" id="modalSub">2026-09-01</div>
+            <textarea id="noteInput" placeholder="写备注… 考试、交作业、复习…"></textarea>
+            <div class="modal-actions">
+                <button class="btn-delete" id="deleteNoteBtn">🗑️ 删除</button>
+                <button class="btn-cancel" id="cancelNoteBtn">取消</button>
+                <button class="btn-save" id="saveNoteBtn">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================================
+        // 1. 数据
+        // ============================================================
+        const HOLIDAYS = {
+            '2026-09-26': '中秋翌日',
+            '2026-10-01': '国庆日',
+            '2026-10-02': '国庆翌日',
+            '2026-10-19': '重阳节翌日',
+            '2026-12-25': '圣诞节',
+            '2026-12-26': '圣诞翌日',
+            '2027-01-01': '元旦'
+        };
+
+        const COURSES = [
+            { id: 1, name: 'Data Visualization', instructor: 'Zhiyin LI', dayOfWeek: 5, startTime: '19:00',
+            endTime: '21:50', location: 'LT-9', startDate: '2026-08-31', endDate: '2026-11-28', color: 'color-1' },
+            { id: 2, name: 'AI-Enhan BusAnal', instructor: 'Chaoyu ZHANG', dayOfWeek: 5, startTime: '12:00',
+                endTime: '14:50', location: 'LI-4412', startDate: '2026-08-31', endDate: '2026-11-28', color: 'color-2' },
+            { id: 3, name: 'Decision Analytics', instructor: 'Hester CHOW', dayOfWeek: 4, startTime: '19:00',
+                endTime: '21:50', location: 'LT-3', startDate: '2026-08-31', endDate: '2026-11-28', color: 'color-3' },
+            { id: 4, name: 'Statistical Data Analysis', instructor: 'SHAKEEL G.', dayOfWeek: 1, startTime: '19:00',
+                endTime: '21:50', location: 'LI-1503', startDate: '2026-08-31', endDate: '2026-10-17', color: 'color-4' },
+            { id: 5, name: 'Statistical Data Analysis', instructor: 'SHAKEEL G.', dayOfWeek: 2, startTime: '19:00',
+                endTime: '21:50', location: 'G-101', startDate: '2026-08-31', endDate: '2026-10-17', color: 'color-4' },
+            { id: 6, name: 'Applied Linear Models', instructor: 'Xinxin YANG', dayOfWeek: 1, startTime: '19:00',
+                endTime: '21:50', location: 'LI-1503', startDate: '2026-10-18', endDate: '2026-11-28', color: 'color-5' },
+            { id: 7, name: 'Applied Linear Models', instructor: 'Xinxin YANG', dayOfWeek: 2, startTime: '19:00',
+                endTime: '21:50', location: 'G-101', startDate: '2026-10-18', endDate: '2026-11-28', color: 'color-5' },
+            { id: 8, name: '🏃 Physical Fitness', instructor: 'Willie HUNG', dayOfWeek: 5, startTime: '15:00',
+                endTime: '15:50', location: '7-04', startDate: '2026-10-25', endDate: '2026-10-31', color: 'color-6',
+                isFlex: true }
+        ];
+
+        // ============================================================
+        // 2. 工具函数
+        // ============================================================
+        function dateToStr(date) {
+            const y = date.getFullYear();
+            const m = String(date.getMonth() + 1).padStart(2, '0');
+            const d = String(date.getDate()).padStart(2, '0');
+            return `${y}-${m}-${d}`;
+        }
+
+        function getHolidayName(date) { return HOLIDAYS[dateToStr(date)] || null; }
+
+        function isHoliday(date) { return !!HOLIDAYS[dateToStr(date)]; }
+
+        function isSunday(date) { return date.getDay() === 0; }
+
+        function isCourseActiveOnDate(course, date) {
+            const ds = dateToStr(date);
+            if (ds < course.startDate || ds > course.endDate) return false;
+            if (date.getDay() !== course.dayOfWeek) return false;
+            return true;
+        }
+
+        function getCoursesForDate(date) {
+            const result = COURSES.filter(c => isCourseActiveOnDate(c, date));
+            result.sort((a, b) => a.startTime.localeCompare(b.startTime));
+            return result;
+        }
+
+        function getDateNote(date) {
+            return localStorage.getItem('note_date_' + dateToStr(date)) || '';
+        }
+
+        function setDateNote(date, text) {
+            const key = 'note_date_' + dateToStr(date);
+            if (text.trim() === '') localStorage.removeItem(key);
+            else localStorage.setItem(key, text.trim());
+        }
+
+        function deleteDateNote(date) {
+            localStorage.removeItem('note_date_' + dateToStr(date));
+        }
+
+        function getCourseNote(date, courseId) {
+            return localStorage.getItem(`note_course_${courseId}_${dateToStr(date)}`) || '';
+        }
+
+        function setCourseNote(date, courseId, text) {
+            const key = `note_course_${courseId}_${dateToStr(date)}`;
+            if (text.trim() === '') localStorage.removeItem(key);
+            else localStorage.setItem(key, text.trim());
+        }
+
+        function deleteCourseNote(date, courseId) {
+            localStorage.removeItem(`note_course_${courseId}_${dateToStr(date)}`);
+        }
+
+        // ============================================================
+        // 3. 长按绑定
+        // ============================================================
+        function bindLongPress(element, callback, stopPropagation = false) {
+            if (!element) return;
+            let timer = null;
+            const start = (e) => {
+                if (stopPropagation) e.stopPropagation();
+                timer = setTimeout(() => { callback(e); }, 500);
+            };
+            const end = () => { if (timer) { clearTimeout(timer);
+                    timer = null; } };
+            const move = () => { if (timer) { clearTimeout(timer);
+                    timer = null; } };
+            element.addEventListener('mousedown', start);
+            element.addEventListener('mouseup', end);
+            element.addEventListener('mouseleave', end);
+            element.addEventListener('touchstart', start, { passive: true });
+            element.addEventListener('touchend', end, { passive: true });
+            element.addEventListener('touchmove', move, { passive: true });
+        }
+
+        // ============================================================
+        // 4. 全局状态
+        // ============================================================
+        let currentView = 'month';
+        let currentDate = new Date(2026, 8, 1);
+        let modalMode = null;
+        let modalCourseId = null;
+        let modalDateStr = null;
+
+        const container = document.getElementById('calendarContainer');
+        const viewTitle = document.getElementById('viewTitle');
+
+        // ============================================================
+        // 5. 渲染
+        // ============================================================
+        function render() {
+            if (currentView === 'month') renderMonth();
+            else renderWeek();
+        }
+
+        // ---------- 月历 ----------
+        function renderMonth() {
+            const year = currentDate.getFullYear(),
+                month = currentDate.getMonth();
+            viewTitle.textContent = `${year}年${month+1}月`;
+
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            const startDayOfWeek = firstDay.getDay();
+
+            let html = `<div class="month-grid">`;
+            ['日', '一', '二', '三', '四', '五', '六'].forEach(w => {
+                html += `<div class="weekday-label">${w}</div>`;
+            });
+            for (let i = 0; i < startDayOfWeek; i++) {
+                html += `<div class="day-cell other-month"></div>`;
+            }
+
+            for (let d = 1; d <= lastDay.getDate(); d++) {
+                const dateObj = new Date(year, month, d);
+                const ds = dateToStr(dateObj);
+                const isSun = isSunday(dateObj);
+                const isHol = isHoliday(dateObj);
+                const holidayName = getHolidayName(dateObj);
+                const courses = getCoursesForDate(dateObj);
+                const dateNote = getDateNote(dateObj);
+
+                let cls = 'day-cell';
+                if (isSun) cls += ' sunday';
+                if (isHol) cls += ' holiday';
+
+                html += `<div class="${cls}" data-date="${ds}">`;
+                html += `<div class="day-number">${d}`;
+                if (holidayName) {
+                    html += `<span class="holiday-tag">${holidayName}</span>`;
+                } else if (isSun) {
+                    html += `<span class="holiday-tag" style="background:#c0392b;">周日</span>`;
+                }
+                html += `</div>`;
+
+                if (courses.length) {
+                    html += `<div class="day-courses">`;
+                    courses.forEach(c => {
+                        const t = c.startTime + '-' + c.endTime;
+                        let label = c.isFlex ? '🏃' : '';
+                        label += c.name;
+                        html +=
+                            `<div class="course-chip ${c.color}"><span class="time-tag">${t}</span> ${label}</div>`;
+                    });
+                    html += `</div>`;
+                } else {
+                    html += `<div class="empty-state">—</div>`;
+                }
+
+                if (dateNote) {
+                    html += `<div class="day-note">📝 ${dateNote}</div>`;
+                }
+                html += `</div>`;
+            }
+
+            const total = startDayOfWeek + lastDay.getDate();
+            const rem = total % 7;
+            if (rem > 0) {
+                for (let i = 0; i < 7 - rem; i++) {
+                    html += `<div class="day-cell other-month"></div>`;
+                }
+            }
+            html += `</div>`;
+            container.innerHTML = html;
+
+            document.querySelectorAll('.day-cell:not(.other-month)').forEach(el => {
+                bindLongPress(el, function(e) {
+                    const ds = el.dataset.date;
+                    if (ds) openNoteModal('date', ds, null);
+                });
+            });
+        }
+
+        // ---------- 周历 ----------
+        function renderWeek() {
+            const year = currentDate.getFullYear(),
+                month = currentDate.getMonth(),
+                day = currentDate.getDate();
+            const dow = currentDate.getDay();
+            let mondayOffset = (dow === 0) ? -6 : 1 - dow;
+            const monday = new Date(year, month, day + mondayOffset);
+            monday.setHours(0, 0, 0, 0);
+            const weekDates = [];
+            for (let i = 0; i < 7; i++) {
+                const d = new Date(monday);
+                d.setDate(monday.getDate() + i);
+                weekDates.push(d);
+            }
+
+            viewTitle.textContent = `${dateToStr(weekDates[0])} ~ ${dateToStr(weekDates[6])}`;
+
+            const times = ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00',
+                '19:00', '20:00', '21:00', '22:00'
+            ];
+
+            const getRow = (timeStr) => {
+                const hour = parseInt(timeStr.split(':')[0]);
+                return (hour - 8) + 2;
+            };
+
+            let html = `<div class="week-wrapper"><div class="week-grid">`;
+
+            // 表头
+            html += `<div class="wg-header" style="grid-column:1;grid-row:1;background:#eef3f8;">时间</div>`;
+            const weekDayNames = ['一', '二', '三', '四', '五', '六', '日'];
+            for (let i = 0; i < 7; i++) {
+                const d = weekDates[i];
+                const isSun = isSunday(d);
+                const isHol = isHoliday(d);
+                const holName = getHolidayName(d);
+                let bg = '';
+                if (isHol) bg = 'background:#fff4ed;';
+                else if (isSun) bg = 'background:#fdf6f6;';
+                html += `<div class="wg-header" style="grid-column:${i+2};grid-row:1;${bg}">`;
+                html += `${weekDayNames[i]} ${d.getDate()}`;
+                if (holName) html += `<span class="holiday-tag">${holName}</span>`;
+                else if (isSun) html += `<span class="holiday-tag" style="background:#c0392b;">周日</span>`;
+                html += `</div>`;
+            }
+
+            // 时间轴和单元格
+            for (let r = 0; r < times.length; r++) {
+                const timeStr = times[r];
+                const rowIdx = r + 2;
+                html += `<div class="wg-time" style="grid-column:1;grid-row:${rowIdx};">${timeStr}</div>`;
+                for (let c = 0; c < 7; c++) {
+                    const dateObj = weekDates[c];
+                    const ds = dateToStr(dateObj);
+                    const isSun = isSunday(dateObj);
+                    const isHol = isHoliday(dateObj);
+                    let cls = 'wg-cell';
+                    if (isHol) cls += ' holiday-bg';
+                    else if (isSun) cls += ' sunday-bg';
+                    html += `<div class="${cls}" style="grid-column:${c+2};grid-row:${rowIdx};" data-date="${ds}"></div>`;
+                }
+            }
+
+            // 备注行
+            const noteRow = times.length + 2;
+            for (let c = 0; c < 7; c++) {
+                const dateObj = weekDates[c];
+                const ds = dateToStr(dateObj);
+                const note = getDateNote(dateObj);
+                const isHol = isHoliday(dateObj);
+                const isSun = isSunday(dateObj);
+                let bg = '';
+                if (isHol) bg = ' holiday-bg';
+                else if (isSun) bg = ' sunday-bg';
+                html += `<div class="wg-daynote${bg}" style="grid-column:${c+2};grid-row:${noteRow};" data-date="${ds}">`;
+                html += note ? `📅 ${note}` : '';
+                html += `</div>`;
+            }
+
+            // 课程色块
+            const weekCourses = [];
+            for (let c = 0; c < 7; c++) {
+                const dateObj = weekDates[c];
+                const courses = getCoursesForDate(dateObj);
+                courses.forEach(course => {
+                    weekCourses.push({
+                        course: course,
+                        date: dateObj,
+                        col: c + 2,
+                        startRow: getRow(course.startTime),
+                        endRow: getRow(course.endTime)
+                    });
+                });
+            }
+
+            weekCourses.forEach(item => {
+                const endHour = parseInt(item.course.endTime.split(':')[0]);
+                const endMin = parseInt(item.course.endTime.split(':')[1]);
+                let targetHour = endHour;
+                if (endMin > 0) targetHour = endHour + 1;
+                if (targetHour > 22) targetHour = 22;
+                item.endRow = (targetHour - 8) + 2;
+            });
+
+            let coursesHtml = '';
+            weekCourses.forEach(item => {
+                const c = item.course;
+                const ds = dateToStr(item.date);
+                const note = getCourseNote(item.date, c.id);
+                const label = c.isFlex ? '🏃' : '';
+                const timeRange = c.startTime + '-' + c.endTime;
+                const col = item.col;
+                const startRow = item.startRow;
+                const endRow = item.endRow;
+                const left = `calc(44px + (${col-2}) * (100% - 44px) / 7 + 2px)`;
+                const width = `calc((100% - 44px) / 7 - 4px)`;
+                const top = `calc((${startRow} - 1) * 36px + 2px)`;
+                const height = `calc((${endRow} - ${startRow}) * 36px - 4px)`;
+
+                coursesHtml += `
+                    <div class="wg-course ${c.color}" 
+                         style="left:${left}; width:${width}; top:${top}; height:${height};"
+                         data-date="${ds}" data-course="${c.id}">
+                        <div>${timeRange} ${label}${c.name}</div>
+                        <span class="loc">📍${c.location}</span>
+                        ${note ? `<div class="course-note">📝 ${note}</div>` : ''}
+                    </div>
+                `;
+            });
+            html += coursesHtml;
+
+            html += `</div></div>`;
+            container.innerHTML = html;
+
+            // 绑定长按
+            document.querySelectorAll('.wg-course').forEach(el => {
+                bindLongPress(el, function(e) {
+                    e.stopPropagation();
+                    const ds = el.dataset.date;
+                    const cid = parseInt(el.dataset.course);
+                    if (ds && cid) openNoteModal('course', ds, cid);
+                }, true);
+            });
+
+            document.querySelectorAll('.wg-cell').forEach(el => {
+                bindLongPress(el, function(e) {
+                    if (e.target.closest('.wg-course')) return;
+                    const ds = el.dataset.date;
+                    if (ds) openNoteModal('date', ds, null);
+                });
+            });
+
+            document.querySelectorAll('.wg-daynote').forEach(el => {
+                bindLongPress(el, function(e) {
+                    const ds = el.dataset.date;
+                    if (ds) openNoteModal('date', ds, null);
+                });
+            });
+        }
+
+        // ============================================================
+        // 6. 模态框逻辑
+        // ============================================================
+        const modalOverlay = document.getElementById('noteModal');
+        const modalDateTitle = document.getElementById('modalDateTitle');
+        const modalSub = document.getElementById('modalSub');
+        const noteInput = document.getElementById('noteInput');
+        const saveBtn = document.getElementById('saveNoteBtn');
+        const cancelBtn = document.getElementById('cancelNoteBtn');
+        const deleteBtn = document.getElementById('deleteNoteBtn');
+
+        function openNoteModal(mode, dateStr, courseId) {
+            modalMode = mode;
+            modalDateStr = dateStr;
+            modalCourseId = courseId;
+
+            const dateObj = new Date(dateStr + 'T00:00:00');
+            let title = '',
+                existingNote = '',
+                sub = '';
+
+            if (mode === 'date') {
+                title = `📅 当日备忘`;
+                sub = `${dateToStr(dateObj)} · 全天`;
+                existingNote = getDateNote(dateObj);
+            } else {
+                const course = COURSES.find(c => c.id === courseId);
+                const cName = course ? course.name : '课程';
+                title = `📘 课程备忘 · ${cName}`;
+                sub = `${dateToStr(dateObj)}  ${course ? course.startTime + '-' + course.endTime : ''}`;
+                existingNote = getCourseNote(dateObj, courseId);
+            }
+
+            modalDateTitle.textContent = title;
+            modalSub.textContent = sub;
+            noteInput.value = existingNote;
+            modalOverlay.classList.add('show');
+            noteInput.focus();
+        }
+
+        function closeModal() {
+            modalOverlay.classList.remove('show');
+            modalMode = null;
+            modalCourseId = null;
+            modalDateStr = null;
+        }
+
+        saveBtn.addEventListener('click', function() {
+            if (!modalDateStr) return;
+            const dateObj = new Date(modalDateStr + 'T00:00:00');
+            const text = noteInput.value;
+
+            if (modalMode === 'date') {
+                setDateNote(dateObj, text);
+            } else if (modalMode === 'course' && modalCourseId) {
+                setCourseNote(dateObj, modalCourseId, text);
+            }
+            closeModal();
+            render();
+        });
+
+        deleteBtn.addEventListener('click', function() {
+            if (!modalDateStr) return;
+            const dateObj = new Date(modalDateStr + 'T00:00:00');
+
+            if (modalMode === 'date') {
+                deleteDateNote(dateObj);
+            } else if (modalMode === 'course' && modalCourseId) {
+                deleteCourseNote(dateObj, modalCourseId);
+            }
+            closeModal();
+            render();
+        });
+
+        cancelBtn.addEventListener('click', closeModal);
+        modalOverlay.addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
+        });
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeModal();
+        });
+
+        // ============================================================
+        // 7. 导航 & 切换
+        // ============================================================
+        document.getElementById('prevBtn').addEventListener('click', function() {
+            if (currentView === 'month') currentDate.setMonth(currentDate.getMonth() - 1);
+            else currentDate.setDate(currentDate.getDate() - 7);
+            render();
+        });
+        document.getElementById('nextBtn').addEventListener('click', function() {
+            if (currentView === 'month') currentDate.setMonth(currentDate.getMonth() + 1);
+            else currentDate.setDate(currentDate.getDate() + 7);
+            render();
+        });
+        document.querySelectorAll('.btn-group button').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.btn-group button').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                currentView = this.dataset.view;
+                render();
+            });
+        });
+
+        // ============================================================
+        // 8. 启动
+        // ============================================================
+        render();
+    </script>
+</body>
+</html>
